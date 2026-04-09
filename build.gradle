@@ -28,8 +28,8 @@ dependencies {
     // JPA
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
-    // Spring Web
-    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    // Spring Web (webmvc -> web 으로 오타 수정!)
+    implementation 'org.springframework.boot:spring-boot-starter-web'
 
     // Lombok
     compileOnly 'org.projectlombok:lombok'
@@ -38,15 +38,21 @@ dependencies {
     // MySQL
     runtimeOnly 'com.mysql:mysql-connector-j'
 
+    // Validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
     // Swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-api:2.7.0'
 
-    // Test
-    testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
-    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+    // 이메일 발송 (SMTP)
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
 
-    // JUnit
+    // Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // Test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
