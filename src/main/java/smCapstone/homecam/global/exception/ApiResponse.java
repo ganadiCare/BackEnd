@@ -1,10 +1,10 @@
-package com.smCapstone.homecam.global.exception;
+package smCapstone.homecam.global.exception;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.smCapstone.homecam.global.apipayload.BaseErrorCode;
-import com.smCapstone.homecam.global.apipayload.BaseSuccessCode;
+import smCapstone.homecam.global.apipayload.BaseErrorCode;
+import smCapstone.homecam.global.apipayload.BaseSuccessCode;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 

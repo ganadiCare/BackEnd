@@ -1,4 +1,4 @@
-package com.smCapstone.homecam.global.apipayload;
+package smCapstone.homecam.global.apipayload;
 
 import org.springframework.http.HttpStatus;
 

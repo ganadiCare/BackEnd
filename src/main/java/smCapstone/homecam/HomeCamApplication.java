@@ -1,4 +1,4 @@
-package com.smCapstone.homecam;
+package smCapstone.homecam;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

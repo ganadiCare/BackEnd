@@ -1,4 +1,4 @@
-package com.smCapstone.homecam.global.config;
+package smCapstone.homecam.global.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;

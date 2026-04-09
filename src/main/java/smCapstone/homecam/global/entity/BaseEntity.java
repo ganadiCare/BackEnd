@@ -1,4 +1,4 @@
-package com.smCapstone.homecam.global.entity;
+package smCapstone.homecam.global.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
