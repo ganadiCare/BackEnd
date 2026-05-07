@@ -37,3 +37,10 @@ spring:
     redis:
       host: localhost
       port: 6379
+
+jwt:
+  token:
+    secretKey: ${JWT_SECRET_KEY}
+    expiration:
+      access: ${JWT_ACCESS_EXPIRATION}
+      refresh: ${JWT_REFRESH_EXPIRATION}
