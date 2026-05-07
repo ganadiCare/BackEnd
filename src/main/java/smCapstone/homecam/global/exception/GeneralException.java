@@ -1,6 +1,6 @@
-package com.smCapstone.homecam.global.exception;
+package smCapstone.homecam.global.exception;
 
-import com.smCapstone.homecam.global.apipayload.BaseErrorCode;
+import smCapstone.homecam.global.apipayload.BaseErrorCode;
 import lombok.Getter;
 
 @Getter
