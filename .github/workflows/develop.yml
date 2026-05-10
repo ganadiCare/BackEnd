@@ -31,9 +31,21 @@ jobs:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
+          envs: DB_URL,DB_USER,DB_PW,MAIL_USERNAME_1,MAIL_PASSWORD_1,JWT_SECRET_KEY,JWT_ACCESS_EXPIRATION,JWT_REFRESH_EXPIRATION,REDIS_HOST
           script: |
             cd /home/LeeDongwon/BackEnd
             git pull origin develop
+            cat > .env << EOF
+            DB_URL=$DB_URL
+            DB_USER=$DB_USER
+            DB_PW=$DB_PW
+            MAIL_USERNAME_1=$MAIL_USERNAME_1
+            MAIL_PASSWORD_1=$MAIL_PASSWORD_1
+            JWT_SECRET_KEY=$JWT_SECRET_KEY
+            JWT_ACCESS_EXPIRATION=$JWT_ACCESS_EXPIRATION
+            JWT_REFRESH_EXPIRATION=$JWT_REFRESH_EXPIRATION
+            REDIS_HOST=$REDIS_HOST
+            EOF
             ./gradlew bootJar -x test
             docker-compose down
             docker-compose up -d --build
