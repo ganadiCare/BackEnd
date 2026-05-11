@@ -36,7 +36,9 @@ jobs:
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
           script: |
-            cat > /home/LeeDongwon/BackEnd/.env << EOF
+            cd /home/LeeDongwon/BackEnd
+            git pull origin develop
+            cat > .env << EOF
             DB_URL=${{ secrets.DB_URL }}
             DB_USER=${{ secrets.DB_USER }}
             DB_PW=${{ secrets.DB_PW }}
@@ -47,6 +49,5 @@ jobs:
             JWT_REFRESH_EXPIRATION=${{ secrets.JWT_REFRESH_EXPIRATION }}
             REDIS_HOST=localhost
             EOF
-            cd /home/LeeDongwon/BackEnd
             docker-compose pull homecam
-            docker-compose up -d homecam
+            docker-comp
