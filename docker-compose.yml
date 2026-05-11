@@ -6,7 +6,18 @@ services:
     volumes:
       - redis-data:/data
     restart: always
-    mem_limit: 100m
-
+    deploy:
+      resources:
+        limits:
+          memory: 100m
+  homecam:
+    image: tuna1025/homecam:latest
+    container_name: homecam
+    network_mode: "host"
+    env_file:
+      - .env
+    restart: always
+    depends_on:
+      - redis
 volumes:
   redis-data:
