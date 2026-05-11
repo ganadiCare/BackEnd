@@ -50,5 +50,6 @@ jobs:
             JWT_REFRESH_EXPIRATION=${{ secrets.JWT_REFRESH_EXPIRATION }}
             REDIS_HOST=localhost
             EOF
+            docker-compose down
             docker-compose pull homecam
-            docker-compose up -d homecam
+            docker-compose up -d
