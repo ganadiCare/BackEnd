@@ -35,6 +35,8 @@ jobs:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
-          envs: DB_URL,DB_USER,DB_PW,MAIL_USERNAME_1,MAIL_PASSWORD_1,JWT_SECRET_KEY,JWT_ACCESS_EXPIRATION,JWT_REFRESH_EXPIRATION
           script: |
-            bash /home/LeeDongwon/deploy.sh
+            docker pull ${{ secrets.DOCKER_USERNAME }}/homecam:latest
+            docker stop homecam || true
+            docker rm homecam || true
+            docker run -d --name homecam -p 8080:8080 --network host -e DB_URL="${{ secrets.DB_URL }}" -e DB_USER="${{ secrets.DB_USER }}" -e DB_PW="${{ secrets.DB_PW }}" -e MAIL_USERNAME_1="${{ secrets.MAIL_USERNAME_1 }}" -e MAIL_PASSWORD_1="${{ secrets.MAIL_PASSWORD_1 }}" -e JWT_SECRET_KEY="${{ secrets.JWT_SECRET_KEY }}" -e JWT_ACCESS_EXPIRATION="${{ secrets.JWT_ACCESS_EXPIRATION }}" -e JWT_REFRESH_EXPIRATION="${{ secrets.JWT_REFRESH_EXPIRATION }}" -e REDIS_HOST=localhost ${{ secrets.DOCKER_USERNAME }}/homecam:latest
