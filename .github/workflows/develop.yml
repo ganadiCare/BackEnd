@@ -37,6 +37,7 @@ jobs:
           key: ${{ secrets.VM_SSH_KEY }}
           script: |
             cd /home/LeeDongwon/BackEnd
+            git checkout -- .
             git pull origin develop
             cat > .env << EOF
             DB_URL=${{ secrets.DB_URL }}
@@ -50,4 +51,4 @@ jobs:
             REDIS_HOST=localhost
             EOF
             docker-compose pull homecam
-            docker-comp
+            docker-compose up -d homecam
