@@ -48,5 +48,5 @@ jobs:
             REDIS_HOST=localhost
             EOF
             cd /home/LeeDongwon/BackEnd
-            docker compose pull homecam
-            docker compose up -d homecam
+            docker-compose pull homecam
+            docker-compose up -d homecam
