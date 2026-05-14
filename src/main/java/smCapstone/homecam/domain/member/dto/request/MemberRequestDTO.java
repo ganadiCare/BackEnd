@@ -28,7 +28,25 @@ public class MemberRequestDTO {
             @Size(min = 8, message = "비밀번호는 8자 이상이어야 합니다.")
             String password,
             @NotBlank(message = "닉네임을 입력해주세요.")
-            String nickname
+            String nickname,
+
+            // 초기 기기 및 펫 설정
+            DeviceSettingDTO device,
+            PetSettingDTO pet
+    ) {}
+
+    public record DeviceSettingDTO(
+            String cameraCode,
+            String dispenserCode
+    ) {}
+
+    public record PetSettingDTO(
+            String name,
+            smCapstone.homecam.domain.pet.enums.PetSpecies species,
+            smCapstone.homecam.domain.pet.enums.PetGender gender,
+            Integer age,
+            Double weight,
+            String birthday
     ) {}
 
     public record LoginDTO(

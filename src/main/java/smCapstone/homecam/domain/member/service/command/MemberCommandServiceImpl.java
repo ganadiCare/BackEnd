@@ -9,12 +9,19 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import smCapstone.homecam.domain.device.entity.Camera;
+import smCapstone.homecam.domain.device.entity.Dispenser;
+import smCapstone.homecam.domain.device.repository.CameraRepository;
+import smCapstone.homecam.domain.device.repository.DispenserRepository;
+import smCapstone.homecam.domain.member.converter.MemberConverter;
 import smCapstone.homecam.domain.member.dto.request.MemberRequestDTO;
 import smCapstone.homecam.domain.member.dto.response.MemberResponseDTO;
 import smCapstone.homecam.domain.member.entity.Member;
 import smCapstone.homecam.domain.member.exception.MemberErrorCode;
 import smCapstone.homecam.domain.member.exception.MemberException;
 import smCapstone.homecam.domain.member.repository.MemberRepository;
+import smCapstone.homecam.domain.pet.entity.Pet;
+import smCapstone.homecam.domain.pet.repository.PetRepository;
 import smCapstone.homecam.global.util.JwtUtil;
 
 import java.time.Duration;
@@ -26,10 +33,14 @@ import java.util.Random;
 public class MemberCommandServiceImpl implements MemberCommandService {
 
     private final MemberRepository memberRepository;
+    private final CameraRepository cameraRepository;
+    private final DispenserRepository dispenserRepository;
+    private final PetRepository petRepository;
+
     private final JavaMailSender mailSender;
     private final StringRedisTemplate redisTemplate;
-    private final PasswordEncoder passwordEncoder; // 비밀번호 암호화
-    private final smCapstone.homecam.global.util.JwtUtil jwtUtil; // 토큰 발급기
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     @Value("${spring.mail.username}")
     private String fromEmail;
@@ -60,34 +71,44 @@ public class MemberCommandServiceImpl implements MemberCommandService {
         }
 
         redisTemplate.delete("AUTH:" + request.email());
-        // 인증 성공 시 가입 허가 키를 30분간 Redis에 저장
         redisTemplate.opsForValue().set("VERIFIED:" + request.email(), "TRUE", Duration.ofMinutes(30));
     }
 
-    // 회원가입
     @Override
     public MemberResponseDTO.SignUpResultDTO signUp(MemberRequestDTO.SignUpDTO request) {
-        // 이메일 중복 검증
+        // 이메일 중복 및 인증 여부 검증
         if (memberRepository.existsByEmail(request.email())) {
             throw new MemberException(MemberErrorCode.MEMBER_ALREADY_EXISTS);
         }
-
-        // 이메일 인증 여부 검증 (Redis에 VERIFIED 키가 있는지 확인)
         String isVerified = redisTemplate.opsForValue().get("VERIFIED:" + request.email());
         if (isVerified == null) {
             throw new MemberException(MemberErrorCode.EMAIL_NOT_VERIFIED);
         }
 
-        // 회원 저장 (비밀번호 암호화)
+        // Member 저장
         Member newMember = Member.builder()
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
                 .nickname(request.nickname())
                 .build();
-
         memberRepository.save(newMember);
 
-        // 가입 완료 후 Redis의 인증 키 삭제 - 재사용 방지 목적
+        // Camera, Dispenser 초기 설정 저장
+        if (request.device() != null) {
+            Camera camera = MemberConverter.toCamera(request.device().cameraCode(), newMember);
+            if (camera != null) cameraRepository.save(camera);
+
+            Dispenser dispenser = MemberConverter.toDispenser(request.device().dispenserCode(), newMember);
+            if (dispenser != null) dispenserRepository.save(dispenser);
+        }
+
+        // Pet 초기 설정 저장
+        if (request.pet() != null) {
+            Pet pet = MemberConverter.toPet(request.pet(), newMember);
+            if (pet != null) petRepository.save(pet);
+        }
+
+        // 가입 완료 후 인증 키 삭제
         redisTemplate.delete("VERIFIED:" + request.email());
 
         return MemberResponseDTO.SignUpResultDTO.builder()
@@ -97,9 +118,8 @@ public class MemberCommandServiceImpl implements MemberCommandService {
                 .build();
     }
 
-    // 로그인
-    @Transactional(readOnly = true)
     @Override
+    @Transactional(readOnly = true)
     public MemberResponseDTO.LoginResultDTO login(MemberRequestDTO.LoginDTO request, HttpServletResponse response) {
         Member member = memberRepository.findByEmail(request.email())
                 .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
@@ -108,19 +128,53 @@ public class MemberCommandServiceImpl implements MemberCommandService {
             throw new MemberException(MemberErrorCode.INVALID_PASSWORD);
         }
 
-        // Access Token, Refresh Token 동시 생성
         String accessToken = jwtUtil.createAccessToken(member.getId(), member.getEmail(), member.getNickname());
         String refreshToken = jwtUtil.createRefreshToken(member.getId());
 
-        // Refresh Token을 Redis에 저장
         jwtUtil.storeRefreshToken(member.getId(), refreshToken);
-
-        // Refresh Token을 응답 쿠키(HttpOnly)에 담기
         jwtUtil.setRefreshTokenCookie(response, refreshToken);
 
         return MemberResponseDTO.LoginResultDTO.builder()
                 .memberId(member.getId())
-                .accessToken(accessToken) // Access Token은 JSON 바디로 전달
+                .accessToken(accessToken)
+                .build();
+    }
+
+    @Override
+    public void logout(String refreshToken, HttpServletResponse response) {
+        if (refreshToken != null && jwtUtil.isValidRefreshToken(refreshToken)) {
+            Long memberId = jwtUtil.getId(refreshToken);
+            jwtUtil.invalidateRefreshToken(memberId);
+        }
+        jwtUtil.deleteRefreshTokenCookie(response);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public MemberResponseDTO.RefreshResultDTO reissueToken(String refreshToken) {
+        // 토큰이 비어있거나 유효기간이 지났는지 검증
+        if (refreshToken == null || !jwtUtil.isValidRefreshToken(refreshToken)) {
+            throw new MemberException(MemberErrorCode.INVALID_TOKEN);
+        }
+
+        // 토큰 안에서 유저 ID 꺼내기
+        Long memberId = jwtUtil.getId(refreshToken);
+
+        // Redis에 저장된 진짜 토큰과 일치하는지 비교 (누군가 옛날 토큰으로 찌르는 것 방지)
+        String savedToken = redisTemplate.opsForValue().get("refresh:token:" + memberId);
+        if (savedToken == null || !savedToken.equals(refreshToken)) {
+            throw new MemberException(MemberErrorCode.INVALID_TOKEN);
+        }
+
+        // 새 엑세스 토큰 발급을 위해 멤버 정보 조회
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+        // 새 엑세스 토큰 생성
+        String newAccessToken = jwtUtil.createAccessToken(member.getId(), member.getEmail(), member.getNickname());
+
+        return MemberResponseDTO.RefreshResultDTO.builder()
+                .accessToken(newAccessToken)
                 .build();
     }
 

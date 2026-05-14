@@ -5,10 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import smCapstone.homecam.domain.member.dto.request.MemberRequestDTO;
 import smCapstone.homecam.domain.member.dto.response.MemberResponseDTO;
 import smCapstone.homecam.domain.member.service.command.MemberCommandService;
@@ -57,6 +54,25 @@ public class MemberController {
             HttpServletResponse response
     ) {
         MemberResponseDTO.LoginResultDTO result = memberCommandService.login(request, response);
+        return ApiResponse.onSuccess(GeneralSuccessCode.OK, result);
+    }
+
+    @PostMapping("/logout")
+    @Operation(summary = "로그아웃 API", description = "쿠키에 저장된 리프레시 토큰을 무효화합니다.")
+    public ApiResponse<String> logout(
+            @CookieValue(value = "refreshToken", required = false) String refreshToken,
+            HttpServletResponse response
+    ) {
+        memberCommandService.logout(refreshToken, response);
+        return ApiResponse.onSuccess(GeneralSuccessCode.OK, "성공적으로 로그아웃 되었습니다.");
+    }
+
+    @PostMapping("/refresh")
+    @Operation(summary = "엑세스 토큰 재발급 API", description = "쿠키에 저장된 리프레시 토큰을 사용하여 새로운 엑세스 토큰을 발급받습니다.")
+    public ApiResponse<MemberResponseDTO.RefreshResultDTO> refreshToken(
+            @CookieValue(value = "refreshToken", required = false) String refreshToken
+    ) {
+        MemberResponseDTO.RefreshResultDTO result = memberCommandService.reissueToken(refreshToken);
         return ApiResponse.onSuccess(GeneralSuccessCode.OK, result);
     }
 

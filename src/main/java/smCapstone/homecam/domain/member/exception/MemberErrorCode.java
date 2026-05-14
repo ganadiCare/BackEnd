@@ -14,7 +14,8 @@ public enum MemberErrorCode implements BaseErrorCode {
     INVALID_CHECK_CODE(HttpStatus.BAD_REQUEST, "AUTH4003", "인증번호가 일치하지 않거나 만료되었습니다."),
     EMAIL_SEND_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AUTH5001", "이메일 발송 중 오류가 발생했습니다."),
     EMAIL_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "AUTH4004", "이메일 인증이 완료되지 않았습니다."),
-    INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "AUTH4005", "비밀번호가 일치하지 않습니다.");
+    INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "AUTH4005", "비밀번호가 일치하지 않습니다."),
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH4001", "유효하지 않거나 만료된 토큰입니다.");;
 
     private final HttpStatus Status;
     private final String code;
