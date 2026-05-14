@@ -7,6 +7,8 @@ import smCapstone.homecam.domain.pet.enums.PetGender;
 import smCapstone.homecam.domain.pet.enums.PetSpecies;
 import smCapstone.homecam.global.entity.BaseEntity;
 
+import java.time.LocalDate;
+
 @Entity
 @Getter
 @Builder
@@ -28,7 +30,7 @@ public class Pet extends BaseEntity {
 
     private Integer age;
     private Double weight;
-    private String birthday;
+    private LocalDate birthday;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
