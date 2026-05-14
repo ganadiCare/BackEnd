@@ -17,4 +17,10 @@ public interface MemberCommandService {
     // 로그인
     @Transactional(readOnly = true)
     MemberResponseDTO.LoginResultDTO login(MemberRequestDTO.LoginDTO request, HttpServletResponse response);
+
+    void logout(String refreshToken, HttpServletResponse response);
+
+    // --- 신규: 토큰 재발급 (Refresh) ---
+    @Transactional(readOnly = true)
+    MemberResponseDTO.RefreshResultDTO reissueToken(String refreshToken);
 }

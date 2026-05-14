@@ -5,10 +5,14 @@ import lombok.Builder;
 public class MemberResponseDTO {
 
     @Builder
+    public record RefreshResultDTO(
+            String accessToken
+    ) {}
+
+    @Builder
     public record LoginResultDTO(
             Long memberId,
-            String accessToken,
-            String refreshToken
+            String accessToken
     ) {}
 
     @Builder
