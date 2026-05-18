@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import smCapstone.homecam.domain.member.dto.request.MemberRequestDTO;
 import smCapstone.homecam.domain.member.dto.response.MemberResponseDTO;
@@ -82,16 +83,11 @@ public class MemberController {
 
     @GetMapping("/profile")
     @Operation(summary = "프로필 조회 API", description = "사용자의 계정, 반려동물, 기기 설정 정보를 조회합니다.")
-    public ApiResponse<MemberResponseDTO.ProfileDTO> getProfile(
-            @RequestHeader("Authorization") String authorizationHeader
-    ) {
-        // Bearer 토큰에서 유저 ID 추출
-        String token = authorizationHeader.replace("Bearer ", "");
-        Long memberId = jwtUtil.getId(token);
+    public ApiResponse<MemberResponseDTO.ProfileDTO> getProfile() {
+        Long memberId = (Long) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
 
-        // Query Service 호출
         MemberResponseDTO.ProfileDTO result = memberQueryService.getMyProfile(memberId);
-
         return ApiResponse.onSuccess(GeneralSuccessCode.OK, result);
     }
 
