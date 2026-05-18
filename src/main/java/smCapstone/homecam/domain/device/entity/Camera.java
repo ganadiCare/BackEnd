@@ -19,6 +19,8 @@ public class Camera extends BaseEntity {
 
     private String deviceCode;
 
+    private String deviceName;
+
     @Enumerated(EnumType.STRING)
     private NightVision nightVision;
 
@@ -27,4 +29,10 @@ public class Camera extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    public void update(String deviceName, NightVision nightVision, Boolean isPrivateMode) {
+        if (deviceName != null) this.deviceName = deviceName;
+        if (nightVision != null) this.nightVision = nightVision;
+        if (isPrivateMode != null) this.isPrivateMode = isPrivateMode;
+    }
 }
