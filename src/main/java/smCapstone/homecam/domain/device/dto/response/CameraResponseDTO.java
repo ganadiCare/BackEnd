@@ -9,6 +9,7 @@ public class CameraResponseDTO {
             String deviceCode,
             String deviceName,
             NightVision nightVision,
-            Boolean isPrivateMode
+            Boolean isPrivateMode,
+            Boolean isAutoRecordMode
     ) {}
 }

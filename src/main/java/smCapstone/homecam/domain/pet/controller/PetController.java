@@ -3,7 +3,6 @@ package smCapstone.homecam.domain.pet.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import smCapstone.homecam.domain.pet.dto.request.PetRequestDTO;
 import smCapstone.homecam.domain.pet.dto.response.PetResponseDTO;
@@ -11,6 +10,7 @@ import smCapstone.homecam.domain.pet.service.command.PetCommandService;
 import smCapstone.homecam.domain.pet.service.query.PetQueryService;
 import smCapstone.homecam.global.apipayload.GeneralSuccessCode;
 import smCapstone.homecam.global.exception.ApiResponse;
+import smCapstone.homecam.global.util.SecurityUtil;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,28 +21,22 @@ public class PetController {
     private final PetCommandService petCommandService;
     private final PetQueryService petQueryService;
 
-    private Long getMemberId() {
-        return (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    }
-
     @GetMapping
     @Operation(summary = "내 반려동물 조회 API")
     public ApiResponse<PetResponseDTO.PetDTO> getMyPet() {
-        return ApiResponse.onSuccess(GeneralSuccessCode.OK, petQueryService.getMyPet(getMemberId()));
+        return ApiResponse.onSuccess(GeneralSuccessCode.OK, petQueryService.getMyPet(SecurityUtil.getCurrentMemberId()));
     }
 
     @PatchMapping
     @Operation(summary = "반려동물 정보 수정 API")
-    public ApiResponse<PetResponseDTO.PetDTO> updatePet(
-            @RequestBody PetRequestDTO.UpdatePetDTO request
-    ) {
-        return ApiResponse.onSuccess(GeneralSuccessCode.OK, petCommandService.updatePet(getMemberId(), request));
+    public ApiResponse<PetResponseDTO.PetDTO> updatePet(@RequestBody PetRequestDTO.UpdatePetDTO request) {
+        return ApiResponse.onSuccess(GeneralSuccessCode.OK, petCommandService.updatePet(SecurityUtil.getCurrentMemberId(), request));
     }
 
     @DeleteMapping
     @Operation(summary = "반려동물 삭제 API")
     public ApiResponse<String> deletePet() {
-        petCommandService.deletePet(getMemberId());
+        petCommandService.deletePet(SecurityUtil.getCurrentMemberId());
         return ApiResponse.onSuccess(GeneralSuccessCode.OK, "반려동물이 삭제되었습니다.");
     }
 }

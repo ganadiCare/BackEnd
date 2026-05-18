@@ -26,13 +26,16 @@ public class Camera extends BaseEntity {
 
     private Boolean isPrivateMode;
 
+    private Boolean isAutoRecordMode;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
-    public void update(String deviceName, NightVision nightVision, Boolean isPrivateMode) {
+    public void update(String deviceName, NightVision nightVision, Boolean isPrivateMode, Boolean isAutoRecordMode) {
         if (deviceName != null) this.deviceName = deviceName;
         if (nightVision != null) this.nightVision = nightVision;
         if (isPrivateMode != null) this.isPrivateMode = isPrivateMode;
+        if (isAutoRecordMode != null) this.isAutoRecordMode = isAutoRecordMode;
     }
 }

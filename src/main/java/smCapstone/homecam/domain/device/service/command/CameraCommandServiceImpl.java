@@ -23,7 +23,7 @@ public class CameraCommandServiceImpl implements CameraCommandService {
         Camera camera = cameraRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new CameraException(CameraErrorCode.CAMERA_NOT_FOUND));
 
-        camera.update(request.deviceName(), request.nightVision(), request.isPrivateMode());
+        camera.update(request.deviceName(), request.nightVision(), request.isPrivateMode(), request.isAutoRecordMode());
 
         return CameraConverter.toCameraDTO(camera);
     }

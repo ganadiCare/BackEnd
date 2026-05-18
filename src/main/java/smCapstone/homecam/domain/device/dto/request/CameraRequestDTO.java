@@ -7,6 +7,7 @@ public class CameraRequestDTO {
     public record UpdateCameraDTO(
             String deviceName,
             NightVision nightVision,
-            Boolean isPrivateMode
+            Boolean isPrivateMode,
+            Boolean isAutoRecordMode
     ) {}
 }

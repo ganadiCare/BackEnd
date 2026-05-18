@@ -16,6 +16,7 @@ public class MemberConverter {
                 .deviceCode(code)
                 .nightVision(NightVision.AUTO)
                 .isPrivateMode(false)
+                .isAutoRecordMode(false)
                 .member(member)
                 .build();
     }
@@ -60,7 +61,7 @@ public class MemberConverter {
             deviceDTO = MemberResponseDTO.DeviceProfileDTO.builder()
                     .cameraCode(camera.getDeviceCode())
                     .isPrivateMode(camera.getIsPrivateMode())
-                    .isAutoRecordMode(false)
+                    .isAutoRecordMode(camera.getIsAutoRecordMode())
                     .nightVision(camera.getNightVision() != null ? camera.getNightVision().name() : "AUTO")
                     .build();
         }

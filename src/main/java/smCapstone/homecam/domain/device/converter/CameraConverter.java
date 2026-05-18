@@ -11,7 +11,8 @@ public class CameraConverter {
                 camera.getDeviceCode(),
                 camera.getDeviceName(),
                 camera.getNightVision(),
-                camera.getIsPrivateMode()
+                camera.getIsPrivateMode(),
+                camera.getIsAutoRecordMode()
         );
     }
 }

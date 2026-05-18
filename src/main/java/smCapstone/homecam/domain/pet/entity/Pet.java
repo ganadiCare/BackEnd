@@ -34,8 +34,8 @@ public class Pet extends BaseEntity {
 
     private LocalDate birthday;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", unique = true)
     private Member member;
 
     public void update(String name, PetSpecies species, PetGender gender,
