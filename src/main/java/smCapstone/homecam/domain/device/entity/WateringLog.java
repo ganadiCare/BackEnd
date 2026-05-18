@@ -17,13 +17,13 @@ public class WateringLog extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDateTime wateringTime; // 급수 시각
+    private LocalDateTime wateringTime;
 
-    private Integer amount;             // 급수량 (ml)
+    private Integer amount;
 
-    private Integer leftovers;          // 잔여량 (ml)
+    private Integer leftovers;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dispenser_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "dispenser_id", nullable = false)
     private Dispenser dispenser;
 }

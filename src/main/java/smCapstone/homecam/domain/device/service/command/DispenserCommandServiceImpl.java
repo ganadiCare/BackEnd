@@ -47,7 +47,6 @@ public class DispenserCommandServiceImpl implements DispenserCommandService {
     public void deleteDispenser(Long memberId) {
         Dispenser dispenser = dispenserRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new DispenserException(DispenserErrorCode.DISPENSER_NOT_FOUND));
-
         dispenserRepository.delete(dispenser);
     }
 
@@ -71,12 +70,10 @@ public class DispenserCommandServiceImpl implements DispenserCommandService {
         Dispenser dispenser = dispenserRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new DispenserException(DispenserErrorCode.DISPENSER_NOT_FOUND));
 
-        FeedingSchedule schedule = feedingScheduleRepository.findById(scheduleId)
+        // dispenserId + scheduleId 조합 조회로 존재 여부 노출 방지
+        FeedingSchedule schedule = feedingScheduleRepository
+                .findByIdAndDispenserId(scheduleId, dispenser.getId())
                 .orElseThrow(() -> new DispenserException(DispenserErrorCode.SCHEDULE_NOT_FOUND));
-
-        if (!schedule.getDispenser().getId().equals(dispenser.getId())) {
-            throw new DispenserException(DispenserErrorCode.SCHEDULE_NOT_OWNED);
-        }
 
         schedule.update(request.feedTime(), request.amount());
         return DispenserConverter.toScheduleDTO(schedule);
@@ -87,12 +84,10 @@ public class DispenserCommandServiceImpl implements DispenserCommandService {
         Dispenser dispenser = dispenserRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new DispenserException(DispenserErrorCode.DISPENSER_NOT_FOUND));
 
-        FeedingSchedule schedule = feedingScheduleRepository.findById(scheduleId)
+        // dispenserId + scheduleId 조합 조회로 존재 여부 노출 방지
+        FeedingSchedule schedule = feedingScheduleRepository
+                .findByIdAndDispenserId(scheduleId, dispenser.getId())
                 .orElseThrow(() -> new DispenserException(DispenserErrorCode.SCHEDULE_NOT_FOUND));
-
-        if (!schedule.getDispenser().getId().equals(dispenser.getId())) {
-            throw new DispenserException(DispenserErrorCode.SCHEDULE_NOT_OWNED);
-        }
 
         feedingScheduleRepository.delete(schedule);
     }

@@ -15,12 +15,15 @@ import smCapstone.homecam.domain.device.repository.FeedingLogRepository;
 import smCapstone.homecam.domain.device.repository.WateringLogRepository;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class DispenserQueryServiceImpl implements DispenserQueryService {
+
+    private static final int MAX_DATE_RANGE_DAYS = 31;
 
     private final DispenserRepository dispenserRepository;
     private final FeedingLogRepository feedingLogRepository;
@@ -33,7 +36,6 @@ public class DispenserQueryServiceImpl implements DispenserQueryService {
 
         FeedingLog latestFeedingLog = feedingLogRepository
                 .findTopByDispenserIdOrderByFeedTimeDesc(dispenser.getId()).orElse(null);
-
         WateringLog latestWateringLog = wateringLogRepository
                 .findTopByDispenserIdOrderByWateringTimeDesc(dispenser.getId()).orElse(null);
 
@@ -42,6 +44,8 @@ public class DispenserQueryServiceImpl implements DispenserQueryService {
 
     @Override
     public List<DispenserResponseDTO.FeedingLogDTO> getFeedingLogs(Long memberId, LocalDateTime from, LocalDateTime to) {
+        validateDateRange(from, to);
+
         Dispenser dispenser = dispenserRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new DispenserException(DispenserErrorCode.DISPENSER_NOT_FOUND));
 
@@ -54,6 +58,8 @@ public class DispenserQueryServiceImpl implements DispenserQueryService {
 
     @Override
     public List<DispenserResponseDTO.WateringLogDTO> getWateringLogs(Long memberId, LocalDateTime from, LocalDateTime to) {
+        validateDateRange(from, to);
+
         Dispenser dispenser = dispenserRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new DispenserException(DispenserErrorCode.DISPENSER_NOT_FOUND));
 
@@ -62,5 +68,14 @@ public class DispenserQueryServiceImpl implements DispenserQueryService {
                 .stream()
                 .map(DispenserConverter::toWateringLogDTO)
                 .toList();
+    }
+
+    private void validateDateRange(LocalDateTime from, LocalDateTime to) {
+        if (from.isAfter(to)) {
+            throw new DispenserException(DispenserErrorCode.INVALID_DATE_RANGE);
+        }
+        if (ChronoUnit.DAYS.between(from, to) > MAX_DATE_RANGE_DAYS) {
+            throw new DispenserException(DispenserErrorCode.INVALID_DATE_RANGE);
+        }
     }
 }

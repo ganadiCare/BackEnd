@@ -44,9 +44,15 @@ public class DispenserConverter {
             FeedingLog latestFeedingLog,
             WateringLog latestWateringLog
     ) {
+        // NPE 방지: 로그 객체 + 시간 필드 둘 다 null 체크
+        String latestFeedTime = (latestFeedingLog != null && latestFeedingLog.getFeedTime() != null)
+                ? latestFeedingLog.getFeedTime().format(TIME_FMT) : null;
+        String latestWateringTime = (latestWateringLog != null && latestWateringLog.getWateringTime() != null)
+                ? latestWateringLog.getWateringTime().format(TIME_FMT) : null;
+
         DispenserResponseDTO.FoodDTO foodDTO = new DispenserResponseDTO.FoodDTO(
                 dispenser.getIsAutoFeed(),
-                latestFeedingLog != null ? latestFeedingLog.getFeedTime().format(TIME_FMT) : null,
+                latestFeedTime,
                 latestFeedingLog != null ? latestFeedingLog.getLeftovers() : null
         );
 
@@ -54,7 +60,7 @@ public class DispenserConverter {
                 dispenser.getIsAutoWater(),
                 dispenser.getMinWater(),
                 dispenser.getMaxWater(),
-                latestWateringLog != null ? latestWateringLog.getWateringTime().format(TIME_FMT) : null,
+                latestWateringTime,
                 latestWateringLog != null ? latestWateringLog.getLeftovers() : null
         );
 

@@ -17,13 +17,13 @@ public class FeedingLog extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDateTime feedTime;  // 급식 시각
+    private LocalDateTime feedTime;
 
-    private Integer amount;          // 급식량 (g)
+    private Integer amount;
 
-    private Integer leftovers;       // 잔여량 (g)
+    private Integer leftovers;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dispenser_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "dispenser_id", nullable = false)
     private Dispenser dispenser;
 }

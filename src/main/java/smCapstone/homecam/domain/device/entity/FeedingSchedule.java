@@ -15,12 +15,12 @@ public class FeedingSchedule extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String feedTime; // "HH:mm"
+    private String feedTime;
 
-    private Integer amount;  // 급식량 (g)
+    private Integer amount;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dispenser_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "dispenser_id", nullable = false)
     private Dispenser dispenser;
 
     public void update(String feedTime, Integer amount) {

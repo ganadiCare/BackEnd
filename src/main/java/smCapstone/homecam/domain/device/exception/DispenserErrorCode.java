@@ -12,7 +12,9 @@ public enum DispenserErrorCode implements BaseErrorCode {
     DISPENSER_NOT_FOUND(HttpStatus.NOT_FOUND, "DSP4001", "디스펜서를 찾을 수 없습니다."),
     DISPENSER_NOT_OWNED(HttpStatus.FORBIDDEN, "DSP4003", "해당 디스펜서에 대한 권한이 없습니다."),
     SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "DSP4004", "급식 스케줄을 찾을 수 없습니다."),
-    SCHEDULE_NOT_OWNED(HttpStatus.FORBIDDEN, "DSP4005", "해당 스케줄에 대한 권한이 없습니다.");
+    SCHEDULE_NOT_OWNED(HttpStatus.FORBIDDEN, "DSP4005", "해당 스케줄에 대한 권한이 없습니다."),
+    INVALID_WATER_RANGE(HttpStatus.BAD_REQUEST, "DSP4006", "최소 수위는 최대 수위보다 클 수 없습니다."),
+    INVALID_DATE_RANGE(HttpStatus.BAD_REQUEST, "DSP4007", "시작일은 종료일보다 이전이어야 합니다.");
 
     private final HttpStatus status;
     private final String code;

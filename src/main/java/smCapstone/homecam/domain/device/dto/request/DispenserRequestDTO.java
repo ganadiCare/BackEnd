@@ -1,6 +1,8 @@
 package smCapstone.homecam.domain.device.dto.request;
 
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 public class DispenserRequestDTO {
@@ -17,8 +19,10 @@ public class DispenserRequestDTO {
     ) {}
 
     public record CreateScheduleDTO(
+            @NotBlank(message = "급식 시간은 필수입니다.")
             @Pattern(regexp = "^([01]\\d|2[0-3]):([0-5]\\d)$", message = "시간 형식은 HH:mm 이어야 합니다.")
             String feedTime,
+            @NotNull(message = "급식량은 필수입니다.")
             @Min(value = 1, message = "급식량은 1g 이상이어야 합니다.")
             Integer amount
     ) {}
