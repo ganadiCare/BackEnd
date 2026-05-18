@@ -22,17 +22,29 @@ public class Pet extends BaseEntity {
 
     private String name;
 
-    @Enumerated(EnumType.STRING) // 반드시 STRING으로 지정
+    @Enumerated(EnumType.STRING)
     private PetSpecies species;
 
-    @Enumerated(EnumType.STRING) // 반드시 STRING으로 지정
+    @Enumerated(EnumType.STRING)
     private PetGender gender;
 
     private Integer age;
+
     private Double weight;
+
     private LocalDate birthday;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id", unique = true)
     private Member member;
+
+    public void update(String name, PetSpecies species, PetGender gender,
+                       Integer age, Double weight, LocalDate birthday) {
+        if (name != null) this.name = name;
+        if (species != null) this.species = species;
+        if (gender != null) this.gender = gender;
+        if (age != null) this.age = age;
+        if (weight != null) this.weight = weight;
+        if (birthday != null) this.birthday = birthday;
+    }
 }
