@@ -12,8 +12,6 @@ import smCapstone.homecam.domain.pet.service.query.PetQueryService;
 import smCapstone.homecam.global.apipayload.GeneralSuccessCode;
 import smCapstone.homecam.global.exception.ApiResponse;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/pets")
@@ -28,30 +26,23 @@ public class PetController {
     }
 
     @GetMapping
-    @Operation(summary = "내 반려동물 목록 조회 API")
-    public ApiResponse<List<PetResponseDTO.PetDTO>> getMyPets() {
-        return ApiResponse.onSuccess(GeneralSuccessCode.OK, petQueryService.getMyPets(getMemberId()));
+    @Operation(summary = "내 반려동물 조회 API")
+    public ApiResponse<PetResponseDTO.PetDTO> getMyPet() {
+        return ApiResponse.onSuccess(GeneralSuccessCode.OK, petQueryService.getMyPet(getMemberId()));
     }
 
-    @GetMapping("/{petId}")
-    @Operation(summary = "반려동물 단건 조회 API")
-    public ApiResponse<PetResponseDTO.PetDTO> getPet(@PathVariable Long petId) {
-        return ApiResponse.onSuccess(GeneralSuccessCode.OK, petQueryService.getPet(getMemberId(), petId));
-    }
-
-    @PatchMapping("/{petId}")
+    @PatchMapping
     @Operation(summary = "반려동물 정보 수정 API")
     public ApiResponse<PetResponseDTO.PetDTO> updatePet(
-            @PathVariable Long petId,
             @RequestBody PetRequestDTO.UpdatePetDTO request
     ) {
-        return ApiResponse.onSuccess(GeneralSuccessCode.OK, petCommandService.updatePet(getMemberId(), petId, request));
+        return ApiResponse.onSuccess(GeneralSuccessCode.OK, petCommandService.updatePet(getMemberId(), request));
     }
 
-    @DeleteMapping("/{petId}")
+    @DeleteMapping
     @Operation(summary = "반려동물 삭제 API")
-    public ApiResponse<String> deletePet(@PathVariable Long petId) {
-        petCommandService.deletePet(getMemberId(), petId);
+    public ApiResponse<String> deletePet() {
+        petCommandService.deletePet(getMemberId());
         return ApiResponse.onSuccess(GeneralSuccessCode.OK, "반려동물이 삭제되었습니다.");
     }
 }

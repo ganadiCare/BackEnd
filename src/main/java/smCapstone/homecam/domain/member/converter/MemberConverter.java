@@ -47,6 +47,7 @@ public class MemberConverter {
         if (pet != null) {
             petDTO = MemberResponseDTO.PetProfileDTO.builder()
                     .name(pet.getName())
+                    .species(pet.getSpecies() != null ? pet.getSpecies().name() : null)
                     .birthday(pet.getBirthday() != null ? pet.getBirthday().toString() : null)
                     .age(pet.getAge())
                     .weight(pet.getWeight())
@@ -59,7 +60,7 @@ public class MemberConverter {
             deviceDTO = MemberResponseDTO.DeviceProfileDTO.builder()
                     .cameraCode(camera.getDeviceCode())
                     .isPrivateMode(camera.getIsPrivateMode())
-                    .isAutoRecordMode(false) // 라즈베리파이 연동 전까지 기본값 false 처리
+                    .isAutoRecordMode(false)
                     .nightVision(camera.getNightVision() != null ? camera.getNightVision().name() : "AUTO")
                     .build();
         }

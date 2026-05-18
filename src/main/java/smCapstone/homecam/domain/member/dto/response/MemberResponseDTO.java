@@ -33,17 +33,18 @@ public class MemberResponseDTO {
     @Builder
     public record PetProfileDTO(
             String name,
-            String birthday, // 프론트에서 포맷팅하기 편하도록
+            String species,
+            String birthday,
             Integer age,
             Double weight,
-            String gender    // Enum 대신 "MALE", "FEMALE" 문자열 반환
+            String gender
     ) {}
 
     @Builder
     public record DeviceProfileDTO(
             String cameraCode,
             Boolean isPrivateMode,
-            Boolean isAutoRecordMode, // UI에 있으므로 필드만 추가 나중에 제어로직 구현
+            Boolean isAutoRecordMode,
             String nightVision
     ) {}
 }
