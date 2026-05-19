@@ -2,6 +2,7 @@ package smCapstone.homecam.domain.device.dto.request;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 
 import java.time.LocalDateTime;
 
@@ -9,6 +10,7 @@ public class LogRequestDTO {
 
     public record CreateFeedingLogDTO(
             @NotNull(message = "급식 시각은 필수입니다.")
+            @PastOrPresent(message = "급식 시각은 현재 또는 과거여야 합니다.")
             LocalDateTime feedTime,
             @NotNull(message = "급식량은 필수입니다.")
             @Min(value = 1, message = "급식량은 1g 이상이어야 합니다.")
@@ -20,6 +22,7 @@ public class LogRequestDTO {
 
     public record CreateWateringLogDTO(
             @NotNull(message = "급수 시각은 필수입니다.")
+            @PastOrPresent(message = "급수 시각은 현재 또는 과거여야 합니다.")
             LocalDateTime wateringTime,
             @NotNull(message = "급수량은 필수입니다.")
             @Min(value = 1, message = "급수량은 1ml 이상이어야 합니다.")

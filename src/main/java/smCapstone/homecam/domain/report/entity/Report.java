@@ -12,19 +12,22 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@Table(uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"member_id", "report_date"})
+})
 public class Report extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDate reportDate; // 보고서 날짜 (하루 1회)
+    private LocalDate reportDate;
 
     @Column(columnDefinition = "TEXT")
-    private String aiSummary;    // GPT 생성 요약
+    private String aiSummary;
 
     @Column(columnDefinition = "TEXT")
-    private String memo;         // 사용자 메모
+    private String memo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)

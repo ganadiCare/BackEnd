@@ -3,9 +3,9 @@ package smCapstone.homecam.domain.report.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import smCapstone.homecam.domain.device.entity.Dispenser;
 import smCapstone.homecam.domain.device.entity.FeedingLog;
 import smCapstone.homecam.domain.device.entity.WateringLog;
-import smCapstone.homecam.domain.device.entity.Dispenser;
 import smCapstone.homecam.domain.device.repository.DispenserRepository;
 import smCapstone.homecam.domain.device.repository.FeedingLogRepository;
 import smCapstone.homecam.domain.device.repository.WateringLogRepository;
@@ -25,12 +25,13 @@ import smCapstone.homecam.global.gpt.GptClient;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class ReportServiceImpl implements ReportService {
 
     private final ReportRepository reportRepository;
@@ -51,25 +52,33 @@ public class ReportServiceImpl implements ReportService {
             throw new ReportException(ReportErrorCode.REPORT_ALREADY_EXISTS);
         }
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
-
+        // 로그 조회 (트랜잭션 밖)
         Pet pet = petRepository.findByMemberId(memberId).orElse(null);
         Dispenser dispenser = dispenserRepository.findByMemberId(memberId).orElse(null);
 
         LocalDateTime from = reportDate.atStartOfDay();
-        LocalDateTime to = reportDate.atTime(23, 59, 59);
+        LocalDateTime to = reportDate.atTime(LocalTime.MAX); // 23:59:59.999999999
 
         List<FeedingLog> feedingLogs = dispenser != null
                 ? feedingLogRepository.findAllByDispenserIdAndFeedTimeBetween(dispenser.getId(), from, to)
                 : List.of();
-
         List<WateringLog> wateringLogs = dispenser != null
                 ? wateringLogRepository.findAllByDispenserIdAndWateringTimeBetween(dispenser.getId(), from, to)
                 : List.of();
 
+        // GPT 호출 (트랜잭션 밖 - 외부 API 호출)
         String prompt = buildPrompt(pet, feedingLogs, wateringLogs, reportDate);
         String aiSummary = gptClient.generateSummary(prompt);
+
+        // DB 저장만 트랜잭션으로
+        return saveReport(memberId, reportDate, aiSummary, feedingLogs, wateringLogs);
+    }
+
+    @Transactional
+    public ReportResponseDTO.ReportDTO saveReport(Long memberId, LocalDate reportDate, String aiSummary,
+                                                   List<FeedingLog> feedingLogs, List<WateringLog> wateringLogs) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
 
         Report report = Report.builder()
                 .reportDate(reportDate)
@@ -91,7 +100,7 @@ public class ReportServiceImpl implements ReportService {
 
         Dispenser dispenser = dispenserRepository.findByMemberId(memberId).orElse(null);
         LocalDateTime from = reportDate.atStartOfDay();
-        LocalDateTime to = reportDate.atTime(23, 59, 59);
+        LocalDateTime to = reportDate.atTime(LocalTime.MAX);
 
         List<FeedingLog> feedingLogs = dispenser != null
                 ? feedingLogRepository.findAllByDispenserIdAndFeedTimeBetween(dispenser.getId(), from, to)
@@ -113,6 +122,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
+    @Transactional
     public ReportResponseDTO.ReportDTO updateMemo(Long memberId, Long reportId, ReportRequestDTO.UpdateMemoDTO request) {
         Report report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new ReportException(ReportErrorCode.REPORT_NOT_FOUND));
@@ -125,7 +135,7 @@ public class ReportServiceImpl implements ReportService {
 
         Dispenser dispenser = dispenserRepository.findByMemberId(memberId).orElse(null);
         LocalDateTime from = report.getReportDate().atStartOfDay();
-        LocalDateTime to = report.getReportDate().atTime(23, 59, 59);
+        LocalDateTime to = report.getReportDate().atTime(LocalTime.MAX);
 
         List<FeedingLog> feedingLogs = dispenser != null
                 ? feedingLogRepository.findAllByDispenserIdAndFeedTimeBetween(dispenser.getId(), from, to)
@@ -179,15 +189,20 @@ public class ReportServiceImpl implements ReportService {
 
     private ReportResponseDTO.ReportDTO toReportDTO(Report report, List<FeedingLog> feedingLogs, List<WateringLog> wateringLogs) {
         int totalFeedAmount = feedingLogs.stream().mapToInt(l -> l.getAmount() != null ? l.getAmount() : 0).sum();
-        // getLast() 대신 Java 17 호환 방식
-        int totalFeedLeftovers = feedingLogs.isEmpty() ? 0
-                : (feedingLogs.get(feedingLogs.size() - 1).getLeftovers() != null
-                ? feedingLogs.get(feedingLogs.size() - 1).getLeftovers() : 0);
+
+        // 시간 기준 마지막 로그로 잔여량 계산 (정렬 의존 제거)
+        int totalFeedLeftovers = feedingLogs.stream()
+                .filter(l -> l.getFeedTime() != null)
+                .max(Comparator.comparing(FeedingLog::getFeedTime))
+                .map(l -> l.getLeftovers() != null ? l.getLeftovers() : 0)
+                .orElse(0);
 
         int totalWaterAmount = wateringLogs.stream().mapToInt(l -> l.getAmount() != null ? l.getAmount() : 0).sum();
-        int totalWaterLeftovers = wateringLogs.isEmpty() ? 0
-                : (wateringLogs.get(wateringLogs.size() - 1).getLeftovers() != null
-                ? wateringLogs.get(wateringLogs.size() - 1).getLeftovers() : 0);
+        int totalWaterLeftovers = wateringLogs.stream()
+                .filter(l -> l.getWateringTime() != null)
+                .max(Comparator.comparing(WateringLog::getWateringTime))
+                .map(l -> l.getLeftovers() != null ? l.getLeftovers() : 0)
+                .orElse(0);
 
         ReportResponseDTO.FeedingSummaryDTO feedingSummary = new ReportResponseDTO.FeedingSummaryDTO(
                 totalFeedAmount,

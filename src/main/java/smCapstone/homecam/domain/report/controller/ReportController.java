@@ -2,6 +2,7 @@ package smCapstone.homecam.domain.report.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
@@ -52,7 +53,7 @@ public class ReportController {
     @Operation(summary = "메모 수정 API")
     public ApiResponse<ReportResponseDTO.ReportDTO> updateMemo(
             @PathVariable Long reportId,
-            @RequestBody ReportRequestDTO.UpdateMemoDTO request
+            @RequestBody @Valid ReportRequestDTO.UpdateMemoDTO request
     ) {
         return ApiResponse.onSuccess(GeneralSuccessCode.OK,
                 reportService.updateMemo(SecurityUtil.getCurrentMemberId(), reportId, request));
