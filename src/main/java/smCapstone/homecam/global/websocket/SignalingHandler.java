@@ -11,45 +11,63 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Component
 public class SignalingHandler extends TextWebSocketHandler {
 
     private final ObjectMapper mapper = new ObjectMapper();
-    private WebSocketSession piSession = null;
+    private final AtomicReference<WebSocketSession> piSession = new AtomicReference<>(null);
     private final Map<String, WebSocketSession> browsers = new ConcurrentHashMap<>();
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        JsonNode msg = mapper.readTree(message.getPayload());
+        JsonNode msg;
+        try {
+            msg = mapper.readTree(message.getPayload());
+        } catch (Exception e) {
+            System.out.println("JSON 파싱 실패: " + e.getMessage());
+            return;
+        }
+
+        if (msg == null || !msg.has("type")) {
+            System.out.println("type 필드 없음, 무시");
+            return;
+        }
+
         String type = msg.get("type").asText();
 
         switch (type) {
             case "register":
+                if (!msg.has("role")) { System.out.println("role 필드 없음"); return; }
                 if ("pi".equals(msg.get("role").asText())) {
-                    piSession = session;
+                    piSession.set(session);
                     System.out.println("Pi 연결됨: " + session.getId());
                 } else {
+                    if (!msg.has("sessionId")) { System.out.println("sessionId 필드 없음"); return; }
                     String sid = msg.get("sessionId").asText();
                     browsers.put(sid, session);
                     System.out.println("브라우저 등록: " + sid);
-                    if (piSession != null && piSession.isOpen()) {
+                    WebSocketSession pi = piSession.get();
+                    if (pi != null && pi.isOpen()) {
                         ObjectNode notify = mapper.createObjectNode();
                         notify.put("type", "browser_connected");
                         notify.put("sessionId", sid);
-                        piSession.sendMessage(new TextMessage(notify.toString()));
+                        pi.sendMessage(new TextMessage(notify.toString()));
                     }
                 }
                 break;
 
             case "offer":
                 System.out.println("Offer 중계 → Pi");
-                if (piSession != null && piSession.isOpen()) {
-                    piSession.sendMessage(message);
+                WebSocketSession pi = piSession.get();
+                if (pi != null && pi.isOpen()) {
+                    pi.sendMessage(message);
                 }
                 break;
 
             case "answer":
+                if (!msg.has("sessionId")) { System.out.println("sessionId 필드 없음"); return; }
                 String sid = msg.get("sessionId").asText();
                 System.out.println("Answer 중계 → 브라우저: " + sid);
                 WebSocketSession browser = browsers.get(sid);
@@ -71,8 +89,8 @@ public class SignalingHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        if (session.equals(piSession)) {
-            piSession = null;
+        if (session.equals(piSession.get())) {
+            piSession.set(null);
             System.out.println("Pi 연결 끊김");
         } else {
             browsers.values().remove(session);
