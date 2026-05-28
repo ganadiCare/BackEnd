@@ -52,12 +52,11 @@ public class ReportServiceImpl implements ReportService {
             throw new ReportException(ReportErrorCode.REPORT_ALREADY_EXISTS);
         }
 
-        // 로그 조회 (트랜잭션 밖)
         Pet pet = petRepository.findByMemberId(memberId).orElse(null);
         Dispenser dispenser = dispenserRepository.findByMemberId(memberId).orElse(null);
 
         LocalDateTime from = reportDate.atStartOfDay();
-        LocalDateTime to = reportDate.atTime(LocalTime.MAX); // 23:59:59.999999999
+        LocalDateTime to = reportDate.atTime(LocalTime.MAX);
 
         List<FeedingLog> feedingLogs = dispenser != null
                 ? feedingLogRepository.findAllByDispenserIdAndFeedTimeBetween(dispenser.getId(), from, to)
@@ -66,11 +65,9 @@ public class ReportServiceImpl implements ReportService {
                 ? wateringLogRepository.findAllByDispenserIdAndWateringTimeBetween(dispenser.getId(), from, to)
                 : List.of();
 
-        // GPT 호출 (트랜잭션 밖 - 외부 API 호출)
         String prompt = buildPrompt(pet, feedingLogs, wateringLogs, reportDate);
         String aiSummary = gptClient.generateSummary(prompt);
 
-        // DB 저장만 트랜잭션으로
         return saveReport(memberId, reportDate, aiSummary, feedingLogs, wateringLogs);
     }
 
@@ -147,6 +144,19 @@ public class ReportServiceImpl implements ReportService {
         return toReportDTO(report, feedingLogs, wateringLogs);
     }
 
+    @Override
+    @Transactional
+    public void deleteReport(Long memberId, Long reportId) {
+        Report report = reportRepository.findById(reportId)
+                .orElseThrow(() -> new ReportException(ReportErrorCode.REPORT_NOT_FOUND));
+
+        if (!report.getMember().getId().equals(memberId)) {
+            throw new ReportException(ReportErrorCode.REPORT_NOT_FOUND);
+        }
+
+        reportRepository.delete(report);
+    }
+
     private String buildPrompt(Pet pet, List<FeedingLog> feedingLogs, List<WateringLog> wateringLogs, LocalDate date) {
         StringBuilder sb = new StringBuilder();
         sb.append("날짜: ").append(date).append("\n\n");
@@ -190,7 +200,6 @@ public class ReportServiceImpl implements ReportService {
     private ReportResponseDTO.ReportDTO toReportDTO(Report report, List<FeedingLog> feedingLogs, List<WateringLog> wateringLogs) {
         int totalFeedAmount = feedingLogs.stream().mapToInt(l -> l.getAmount() != null ? l.getAmount() : 0).sum();
 
-        // 시간 기준 마지막 로그로 잔여량 계산 (정렬 의존 제거)
         int totalFeedLeftovers = feedingLogs.stream()
                 .filter(l -> l.getFeedTime() != null)
                 .max(Comparator.comparing(FeedingLog::getFeedTime))

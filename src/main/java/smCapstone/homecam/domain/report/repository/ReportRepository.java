@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface ReportRepository extends JpaRepository<Report, Long> {
     Optional<Report> findByMemberIdAndReportDate(Long memberId, LocalDate reportDate);
     List<Report> findAllByMemberIdOrderByReportDateDesc(Long memberId);
+    void deleteAllByMemberId(Long memberId);
 }

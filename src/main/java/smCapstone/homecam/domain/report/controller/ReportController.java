@@ -58,4 +58,11 @@ public class ReportController {
         return ApiResponse.onSuccess(GeneralSuccessCode.OK,
                 reportService.updateMemo(SecurityUtil.getCurrentMemberId(), reportId, request));
     }
+
+    @DeleteMapping("/{reportId}")
+    @Operation(summary = "보고서 삭제 API", description = "특정 보고서를 삭제합니다.")
+    public ApiResponse<Void> deleteReport(@PathVariable Long reportId) {
+        reportService.deleteReport(SecurityUtil.getCurrentMemberId(), reportId);
+        return ApiResponse.onSuccess(GeneralSuccessCode.OK, null);
+    }
 }
