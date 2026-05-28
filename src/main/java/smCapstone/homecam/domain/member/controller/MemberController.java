@@ -79,4 +79,11 @@ public class MemberController {
         MemberResponseDTO.ProfileDTO result = memberQueryService.getMyProfile(SecurityUtil.getCurrentMemberId());
         return ApiResponse.onSuccess(GeneralSuccessCode.OK, result);
     }
+
+    @DeleteMapping("/me")
+    @Operation(summary = "계정 삭제 API", description = "현재 로그인된 계정과 모든 연관 데이터를 삭제합니다.")
+    public ApiResponse<Void> deleteMember(HttpServletResponse response) {
+        memberCommandService.deleteMember(SecurityUtil.getCurrentMemberId(), response);
+        return ApiResponse.onSuccess(GeneralSuccessCode.OK, null);
+    }
 }

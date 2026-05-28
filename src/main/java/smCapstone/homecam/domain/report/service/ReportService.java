@@ -11,4 +11,5 @@ public interface ReportService {
     ReportResponseDTO.ReportDTO getReport(Long memberId, LocalDate reportDate);
     List<ReportResponseDTO.ReportListDTO> getReportList(Long memberId);
     ReportResponseDTO.ReportDTO updateMemo(Long memberId, Long reportId, ReportRequestDTO.UpdateMemoDTO request);
+    void deleteReport(Long memberId, Long reportId);
 }

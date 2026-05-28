@@ -20,7 +20,10 @@ public interface MemberCommandService {
 
     void logout(String refreshToken, HttpServletResponse response);
 
-    // --- 신규: 토큰 재발급 (Refresh) ---
+    // 토큰 재발급 (Refresh)
     @Transactional(readOnly = true)
     MemberResponseDTO.RefreshResultDTO reissueToken(String refreshToken);
+
+    // 계정 삭제
+    void deleteMember(Long memberId, HttpServletResponse response);
 }
