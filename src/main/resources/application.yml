@@ -1,12 +1,18 @@
 spring:
   application:
     name: HomeCam
+  datasource: # Codebase Agent: MySQL 연결 정보 추가 시작
+    url: jdbc:mysql://smcapstone-mysql.mysql.database.azure.com:3306/homecam?useSSL=true&requireSSL=true&autoReconnect=true
+    username: smcapadmin
+    password: zkzkdhxhr!23
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  # Codebase Agent: MySQL 연결 정보 추가 끝
   jpa:
     database: mysql
     database-platform: org.hibernate.dialect.MySQLDialect
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: update # 이 설정은 개발 시 편리하지만, 프로덕션에서는 `none` 또는 `validate` 사용 권장
     properties:
       hibernate:
         format_sql: true
@@ -23,12 +29,13 @@ spring:
           ssl:
             trust: smtp.gmail.com
 
-jwt:
-  token:
-    secretKey: ${JWT_SECRET_KEY}
-    expiration:
-      access: ${JWT_ACCESS_EXPIRATION}
-      refresh: ${JWT_REFRESH_EXPIRATION}
+# Codebase Agent: YAML 파싱 오류 해결을 위해 jwt 블록을 최상위 레벨로 조정 (주석 유지)
+#jwt:
+#  token:
+#    secretKey: ${JWT_SECRET_KEY}
+#    expiration:
+#      access: ${JWT_ACCESS_EXPIRATION}
+#      refresh: ${JWT_REFRESH_EXPIRATION}
 
 gpt:
   model: gpt-5.4-mini

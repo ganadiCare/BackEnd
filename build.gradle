@@ -54,6 +54,7 @@ dependencies {
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'net.datafaker:datafaker:2.4.1'  //TEST CASE 작업용
 
     // Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
