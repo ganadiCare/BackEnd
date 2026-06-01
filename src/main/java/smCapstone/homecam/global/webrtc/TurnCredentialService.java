@@ -19,8 +19,11 @@ public class TurnCredentialService {
     @Value("${webrtc.turn.ttl:86400}")
     private long ttl;
 
-    @Value("${webrtc.turn.urls}")
-    private List<String> turnUrls;
+    // TURN 서버 URL은 민감정보 아니므로 직접 명시
+    private static final List<String> TURN_URLS = List.of(
+        "turn:20.189.241.58:3478?transport=udp",
+        "turn:20.189.241.58:3478?transport=tcp"
+    );
 
     /**
      * coturn --use-auth-secret 방식 호환 임시 자격증명 생성
@@ -34,7 +37,7 @@ public class TurnCredentialService {
 
         List<Map<String, Object>> iceServers = List.of(
             Map.of(
-                "urls",       turnUrls,
+                "urls",       TURN_URLS,
                 "username",   username,
                 "credential", credential
             ),
