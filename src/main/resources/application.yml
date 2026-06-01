@@ -35,3 +35,11 @@ gpt:
   api:
     key: ${GPT_API_KEY}
     url: https://api.openai.com/v1/chat/completions
+
+webrtc:
+  turn:
+    secret: ${TURN_SECRET}
+    ttl: 86400
+    urls:
+      - "turn:20.189.241.58:3478?transport=udp"
+      - "turn:20.189.241.58:3478?transport=tcp"
