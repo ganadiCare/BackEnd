@@ -49,6 +49,7 @@ jobs:
             JWT_ACCESS_EXPIRATION=${{ secrets.JWT_ACCESS_EXPIRATION }}
             JWT_REFRESH_EXPIRATION=${{ secrets.JWT_REFRESH_EXPIRATION }}
             GPT_API_KEY=${{ secrets.GPT_API_KEY }}
+            TURN_SECRET=${{ secrets.TURN_SECRET }}
             REDIS_HOST=localhost
             EOF
             docker-compose down
