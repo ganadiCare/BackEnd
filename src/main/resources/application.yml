@@ -40,3 +40,7 @@ webrtc:
   turn:
     secret: ${TURN_SECRET}
     ttl: 86400
+
+recording:
+  storage:
+    path: /app/recordings
