@@ -13,6 +13,8 @@ import org.springframework.web.multipart.MultipartFile;
 import smCapstone.homecam.domain.device.dto.response.RecordingResponseDTO;
 import smCapstone.homecam.domain.device.entity.Recording;
 import smCapstone.homecam.domain.device.enums.RecordingType;
+import smCapstone.homecam.domain.device.exception.CameraErrorCode;
+import smCapstone.homecam.domain.device.exception.CameraException;
 import smCapstone.homecam.domain.device.service.command.RecordingCommandService;
 import smCapstone.homecam.domain.device.service.query.RecordingQueryService;
 import smCapstone.homecam.global.apipayload.GeneralSuccessCode;
@@ -56,6 +58,11 @@ public class RecordingController {
                 SecurityUtil.getCurrentMemberId(), recordingId);
 
         Resource resource = new FileSystemResource(Paths.get(recording.getFilePath()));
+
+        // 파일 존재 여부 검증
+        if (!resource.exists()) {
+            throw new CameraException(CameraErrorCode.RECORDING_NOT_FOUND);
+        }
 
         // 파일 타입에 따라 Content-Type 설정
         MediaType mediaType = recording.getType() == RecordingType.VIDEO
