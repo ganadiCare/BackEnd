@@ -10,8 +10,6 @@ import smCapstone.homecam.global.apipayload.GeneralSuccessCode;
 import smCapstone.homecam.global.exception.ApiResponse;
 import smCapstone.homecam.global.util.SecurityUtil;
 
-import java.util.Map;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/webrtc")
@@ -25,7 +23,7 @@ public class TurnController {
         summary = "TURN 자격증명 발급",
         description = "로그인한 사용자 기준으로 TTL이 있는 임시 TURN 계정을 발급합니다. 하드코딩 대신 이 API를 호출하세요."
     )
-    public ApiResponse<Map<String, Object>> getTurnCredentials() {
+    public ApiResponse<TurnCredentialResponse> getTurnCredentials() {
         String userId = SecurityUtil.getCurrentMemberId().toString();
         return ApiResponse.onSuccess(GeneralSuccessCode.OK, turnCredentialService.generateCredentials(userId));
     }

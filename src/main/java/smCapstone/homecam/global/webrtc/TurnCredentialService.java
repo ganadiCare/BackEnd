@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -26,31 +27,32 @@ public class TurnCredentialService {
      * username = "만료시각:userId"
      * credential = HMAC-SHA1(secret, username) → Base64
      */
-    public Map<String, Object> generateCredentials(String userId) {
+    public TurnCredentialResponse generateCredentials(String userId) {
         long expiry = (System.currentTimeMillis() / 1000L) + ttl;
         String username = expiry + ":" + userId;
         String credential = hmacSha1(turnSecret, username);
 
-        return Map.of(
-            "iceServers", List.of(
-                Map.of(
-                    "urls",       turnUrls,
-                    "username",   username,
-                    "credential", credential
-                ),
-                Map.of("urls", List.of("stun:stun.l.google.com:19302"))
+        List<Map<String, Object>> iceServers = List.of(
+            Map.of(
+                "urls",       turnUrls,
+                "username",   username,
+                "credential", credential
             ),
-            "expiresAt", expiry
+            Map.of("urls", List.of("stun:stun.l.google.com:19302"))
         );
+
+        return new TurnCredentialResponse(iceServers, expiry);
     }
 
     private String hmacSha1(String key, String data) {
         try {
             Mac mac = Mac.getInstance("HmacSHA1");
-            mac.init(new SecretKeySpec(key.getBytes(), "HmacSHA1"));
-            return Base64.getEncoder().encodeToString(mac.doFinal(data.getBytes()));
+            mac.init(new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA1"));
+            return Base64.getEncoder().encodeToString(
+                mac.doFinal(data.getBytes(StandardCharsets.UTF_8))
+            );
         } catch (Exception e) {
-            throw new RuntimeException("TURN 자격증명 생성 실패", e);
+            throw new IllegalStateException("TURN 자격증명 생성 실패", e);
         }
     }
 }
