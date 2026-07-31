@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface DispenserRepository extends JpaRepository<Dispenser, Long> {
     Optional<Dispenser> findByMemberId(Long memberId);
+    Optional<Dispenser> findFirstByOrderByIdAsc();
 }

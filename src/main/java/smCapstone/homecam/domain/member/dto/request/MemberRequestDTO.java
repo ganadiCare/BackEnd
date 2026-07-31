@@ -41,7 +41,7 @@ public class MemberRequestDTO {
     public record DeviceSettingDTO(
             @NotBlank(message = "카메라 코드를 입력해주세요.")
             String cameraCode,
-            @NotBlank(message = "디스펜서 코드를 입력해주세요.")
+            // 단일 급식기 환경에서는 입력받지 않는 이전 호환용 필드입니다.
             String dispenserCode
     ) {}
 

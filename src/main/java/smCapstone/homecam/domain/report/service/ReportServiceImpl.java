@@ -48,10 +48,6 @@ public class ReportServiceImpl implements ReportService {
     public ReportResponseDTO.ReportDTO generateReport(Long memberId, LocalDate reportDate) {
         if (reportDate == null) reportDate = LocalDate.now();
 
-        if (reportRepository.findByMemberIdAndReportDate(memberId, reportDate).isPresent()) {
-            throw new ReportException(ReportErrorCode.REPORT_ALREADY_EXISTS);
-        }
-
         Pet pet = petRepository.findByMemberId(memberId).orElse(null);
         Dispenser dispenser = dispenserRepository.findByMemberId(memberId).orElse(null);
 
@@ -77,11 +73,16 @@ public class ReportServiceImpl implements ReportService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
 
-        Report report = Report.builder()
-                .reportDate(reportDate)
-                .aiSummary(aiSummary)
-                .member(member)
-                .build();
+        Report report = reportRepository.findByMemberIdAndReportDate(memberId, reportDate)
+                .map(existingReport -> {
+                    existingReport.replaceGeneratedContent(aiSummary);
+                    return existingReport;
+                })
+                .orElseGet(() -> Report.builder()
+                        .reportDate(reportDate)
+                        .aiSummary(aiSummary)
+                        .member(member)
+                        .build());
 
         reportRepository.save(report);
         return toReportDTO(report, feedingLogs, wateringLogs);

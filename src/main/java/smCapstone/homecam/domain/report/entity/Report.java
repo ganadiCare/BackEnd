@@ -36,4 +36,9 @@ public class Report extends BaseEntity {
     public void updateMemo(String memo) {
         this.memo = memo;
     }
+
+    public void replaceGeneratedContent(String aiSummary) {
+        this.aiSummary = aiSummary;
+        this.memo = null;
+    }
 }
