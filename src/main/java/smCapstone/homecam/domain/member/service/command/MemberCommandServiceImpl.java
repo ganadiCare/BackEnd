@@ -104,9 +104,12 @@ public class MemberCommandServiceImpl implements MemberCommandService {
             Camera camera = MemberConverter.toCamera(request.device().cameraCode(), newMember);
             if (camera != null) cameraRepository.save(camera);
 
-            Dispenser dispenser = MemberConverter.toDispenser(request.device().dispenserCode(), newMember);
-            if (dispenser != null) dispenserRepository.save(dispenser);
         }
+
+        // 단일 급식기 환경에서는 가입 시 기기 코드를 확인하지 않는다.
+        dispenserRepository.save(Dispenser.builder()
+                .member(newMember)
+                .build());
 
         if (request.pet() != null) {
             Pet pet = MemberConverter.toPet(request.pet(), newMember);

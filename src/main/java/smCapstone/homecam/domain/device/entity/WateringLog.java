@@ -23,6 +23,9 @@ public class WateringLog extends BaseEntity {
 
     private Integer leftovers;
 
+    @Column(unique = true, length = 64)
+    private String mqttEventId;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "dispenser_id", nullable = false)
     private Dispenser dispenser;

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface FeedingLogRepository extends JpaRepository<FeedingLog, Long> {
+    boolean existsByMqttEventId(String mqttEventId);
     Optional<FeedingLog> findTopByDispenserIdOrderByFeedTimeDesc(Long dispenserId);
     List<FeedingLog> findAllByDispenserIdAndFeedTimeBetween(Long dispenserId, LocalDateTime from, LocalDateTime to);
     void deleteAllByDispenserId(Long dispenserId);

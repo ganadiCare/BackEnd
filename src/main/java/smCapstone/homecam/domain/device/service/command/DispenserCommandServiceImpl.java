@@ -16,6 +16,7 @@ import smCapstone.homecam.domain.device.repository.DispenserRepository;
 import smCapstone.homecam.domain.device.repository.FeedingLogRepository;
 import smCapstone.homecam.domain.device.repository.FeedingScheduleRepository;
 import smCapstone.homecam.domain.device.repository.WateringLogRepository;
+import smCapstone.homecam.global.mqtt.MqttSchedulePublisher;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +27,7 @@ public class DispenserCommandServiceImpl implements DispenserCommandService {
     private final FeedingScheduleRepository feedingScheduleRepository;
     private final FeedingLogRepository feedingLogRepository;
     private final WateringLogRepository wateringLogRepository;
+    private final MqttSchedulePublisher mqttSchedulePublisher;
 
     @Override
     public DispenserResponseDTO.DispenserDTO updateDispenser(Long memberId, DispenserRequestDTO.UpdateDispenserDTO request) {
@@ -34,6 +36,7 @@ public class DispenserCommandServiceImpl implements DispenserCommandService {
 
         dispenser.update(request.deviceName(), request.isAutoFeed(),
                 request.isAutoWater(), request.minWater(), request.maxWater(), request.isCleaningMode());
+        mqttSchedulePublisher.publishAfterCommit(dispenser.getId());
 
         FeedingLog latestFeedingLog = feedingLogRepository
                 .findTopByDispenserIdOrderByFeedTimeDesc(dispenser.getId()).orElse(null);
@@ -62,6 +65,7 @@ public class DispenserCommandServiceImpl implements DispenserCommandService {
                 .build();
 
         feedingScheduleRepository.save(schedule);
+        mqttSchedulePublisher.publishAfterCommit(dispenser.getId());
         return DispenserConverter.toScheduleDTO(schedule);
     }
 
@@ -76,6 +80,7 @@ public class DispenserCommandServiceImpl implements DispenserCommandService {
                 .orElseThrow(() -> new DispenserException(DispenserErrorCode.SCHEDULE_NOT_FOUND));
 
         schedule.update(request.feedTime(), request.amount());
+        mqttSchedulePublisher.publishAfterCommit(dispenser.getId());
         return DispenserConverter.toScheduleDTO(schedule);
     }
 
@@ -90,5 +95,6 @@ public class DispenserCommandServiceImpl implements DispenserCommandService {
                 .orElseThrow(() -> new DispenserException(DispenserErrorCode.SCHEDULE_NOT_FOUND));
 
         feedingScheduleRepository.delete(schedule);
+        mqttSchedulePublisher.publishAfterCommit(dispenser.getId());
     }
 }
