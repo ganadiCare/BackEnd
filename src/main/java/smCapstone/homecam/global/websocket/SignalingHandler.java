@@ -8,6 +8,7 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+import smCapstone.homecam.domain.activity.service.ActivityLogService;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,8 +18,13 @@ import java.util.concurrent.atomic.AtomicReference;
 public class SignalingHandler extends TextWebSocketHandler {
 
     private final ObjectMapper mapper = new ObjectMapper();
+    private final ActivityLogService activityLogService;
     private final AtomicReference<WebSocketSession> piSession = new AtomicReference<>(null);
     private final Map<String, WebSocketSession> browsers = new ConcurrentHashMap<>();
+
+    public SignalingHandler(ActivityLogService activityLogService) {
+        this.activityLogService = activityLogService;
+    }
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
@@ -73,6 +79,19 @@ public class SignalingHandler extends TextWebSocketHandler {
                 WebSocketSession browser = browsers.get(sid);
                 if (browser != null && browser.isOpen()) {
                     browser.sendMessage(message);
+                }
+                break;
+
+            case "activity":
+                if (!session.equals(piSession.get())) {
+                    System.out.println("브라우저가 보낸 활동 기록은 무시합니다.");
+                    return;
+                }
+                try {
+                    activityLogService.record(msg);
+                    System.out.println("강아지 활동 기록 저장: " + msg.path("detectionId").asText());
+                } catch (Exception e) {
+                    System.out.println("강아지 활동 기록 저장 실패: " + e.getMessage());
                 }
                 break;
 
