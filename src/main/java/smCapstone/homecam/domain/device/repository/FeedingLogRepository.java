@@ -11,5 +11,13 @@ public interface FeedingLogRepository extends JpaRepository<FeedingLog, Long> {
     boolean existsByMqttEventId(String mqttEventId);
     Optional<FeedingLog> findTopByDispenserIdOrderByFeedTimeDesc(Long dispenserId);
     List<FeedingLog> findAllByDispenserIdAndFeedTimeBetween(Long dispenserId, LocalDateTime from, LocalDateTime to);
+
+    default List<FeedingLog> findActualFeedingsInPeriod(
+            Long dispenserId, LocalDateTime from, LocalDateTime to) {
+        return findAllByDispenserIdAndFeedTimeBetween(dispenserId, from, to).stream()
+                .filter(FeedingLog::isActualFeeding)
+                .toList();
+    }
+
     void deleteAllByDispenserId(Long dispenserId);
 }

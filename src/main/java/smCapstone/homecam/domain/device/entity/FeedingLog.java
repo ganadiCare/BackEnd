@@ -2,6 +2,7 @@ package smCapstone.homecam.domain.device.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import smCapstone.homecam.domain.device.enums.FeedingLogType;
 import smCapstone.homecam.global.entity.BaseEntity;
 
 import java.time.LocalDateTime;
@@ -23,10 +24,18 @@ public class FeedingLog extends BaseEntity {
 
     private Integer leftovers;
 
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private FeedingLogType logType;
+
     @Column(unique = true, length = 64)
     private String mqttEventId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "dispenser_id", nullable = false)
     private Dispenser dispenser;
+
+    public boolean isActualFeeding() {
+        return logType == null || logType == FeedingLogType.FEEDING;
+    }
 }

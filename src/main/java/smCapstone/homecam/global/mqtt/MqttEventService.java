@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import smCapstone.homecam.domain.device.entity.Dispenser;
 import smCapstone.homecam.domain.device.entity.FeedingLog;
 import smCapstone.homecam.domain.device.entity.WateringLog;
+import smCapstone.homecam.domain.device.enums.FeedingLogType;
 import smCapstone.homecam.domain.device.repository.DispenserRepository;
 import smCapstone.homecam.domain.device.repository.FeedingLogRepository;
 import smCapstone.homecam.domain.device.repository.WateringLogRepository;
@@ -54,10 +55,23 @@ public class MqttEventService {
                         .feedTime(now)
                         .amount(amount)
                         .leftovers(leftovers)
+                        .logType(FeedingLogType.FEEDING)
                         .mqttEventId(eventId)
                         .dispenser(dispenser)
                         .build());
                 notify(dispenser, "feeding-completed", amount, leftovers);
+            } else if ("food-status".equals(type)) {
+                if (feedingLogRepository.existsByMqttEventId(eventId)) {
+                    return;
+                }
+                feedingLogRepository.save(FeedingLog.builder()
+                        .feedTime(now)
+                        .amount(0)
+                        .leftovers(leftovers)
+                        .logType(FeedingLogType.HOURLY_STATUS)
+                        .mqttEventId(eventId)
+                        .dispenser(dispenser)
+                        .build());
             } else if ("watering".equals(type)) {
                 if (wateringLogRepository.existsByMqttEventId(eventId)) {
                     return;
