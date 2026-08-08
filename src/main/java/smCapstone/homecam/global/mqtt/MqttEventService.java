@@ -9,6 +9,7 @@ import smCapstone.homecam.domain.device.entity.Dispenser;
 import smCapstone.homecam.domain.device.entity.FeedingLog;
 import smCapstone.homecam.domain.device.entity.WateringLog;
 import smCapstone.homecam.domain.device.enums.FeedingLogType;
+import smCapstone.homecam.domain.device.enums.WateringLogType;
 import smCapstone.homecam.domain.device.repository.DispenserRepository;
 import smCapstone.homecam.domain.device.repository.FeedingLogRepository;
 import smCapstone.homecam.domain.device.repository.WateringLogRepository;
@@ -51,10 +52,12 @@ public class MqttEventService {
                 if (feedingLogRepository.existsByMqttEventId(eventId)) {
                     return;
                 }
+                int before = nonNegative(event.path("before").asInt(leftovers));
                 feedingLogRepository.save(FeedingLog.builder()
                         .feedTime(now)
                         .amount(amount)
                         .leftovers(leftovers)
+                        .consumedAmount(calculateFoodConsumed(dispenser, before))
                         .logType(FeedingLogType.FEEDING)
                         .mqttEventId(eventId)
                         .dispenser(dispenser)
@@ -68,6 +71,7 @@ public class MqttEventService {
                         .feedTime(now)
                         .amount(0)
                         .leftovers(leftovers)
+                        .consumedAmount(calculateFoodConsumed(dispenser, leftovers))
                         .logType(FeedingLogType.HOURLY_STATUS)
                         .mqttEventId(eventId)
                         .dispenser(dispenser)
@@ -80,6 +84,7 @@ public class MqttEventService {
                         .wateringTime(now)
                         .amount(amount)
                         .leftovers(leftovers)
+                        .logType(WateringLogType.WATERING)
                         .mqttEventId(eventId)
                         .dispenser(dispenser)
                         .build());
@@ -92,6 +97,7 @@ public class MqttEventService {
                         .wateringTime(now)
                         .amount(0)
                         .leftovers(leftovers)
+                        .logType(WateringLogType.HOURLY_STATUS)
                         .mqttEventId(eventId)
                         .dispenser(dispenser)
                         .build());
@@ -110,6 +116,14 @@ public class MqttEventService {
         data.put("leftovers", leftovers);
         data.put("occurredAt", LocalDateTime.now(KST).toString());
         notificationService.send(dispenser.getMember().getId(), type, data);
+    }
+
+    private int calculateFoodConsumed(Dispenser dispenser, int currentWeight) {
+        return feedingLogRepository.findTopByDispenserIdOrderByFeedTimeDesc(dispenser.getId())
+                .map(previous -> Math.max(0,
+                        nonNegative(previous.getLeftovers() != null ? previous.getLeftovers() : 0)
+                                - nonNegative(currentWeight)))
+                .orElse(0);
     }
 
     private String requiredText(JsonNode node, String field) {
