@@ -89,9 +89,9 @@ public class SignalingHandler extends TextWebSocketHandler {
                 }
                 try {
                     activityLogService.record(msg);
-                    System.out.println("강아지 활동 기록 저장: " + msg.path("detectionId").asText());
+                    System.out.println("반려동물 활동 기록 저장: " + msg.path("detectionId").asText());
                 } catch (Exception e) {
-                    System.out.println("강아지 활동 기록 저장 실패: " + e.getMessage());
+                    System.out.println("반려동물 활동 기록 저장 실패: " + e.getMessage());
                 }
                 break;
 

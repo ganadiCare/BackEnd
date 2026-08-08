@@ -55,7 +55,7 @@ public class ReportServiceImpl implements ReportService {
         LocalDateTime to = reportDate.atTime(LocalTime.MAX);
 
         List<FeedingLog> feedingLogs = dispenser != null
-                ? feedingLogRepository.findAllByDispenserIdAndFeedTimeBetween(dispenser.getId(), from, to)
+                ? feedingLogRepository.findActualFeedingsInPeriod(dispenser.getId(), from, to)
                 : List.of();
         List<WateringLog> wateringLogs = dispenser != null
                 ? wateringLogRepository.findAllByDispenserIdAndWateringTimeBetween(dispenser.getId(), from, to)
@@ -101,7 +101,7 @@ public class ReportServiceImpl implements ReportService {
         LocalDateTime to = reportDate.atTime(LocalTime.MAX);
 
         List<FeedingLog> feedingLogs = dispenser != null
-                ? feedingLogRepository.findAllByDispenserIdAndFeedTimeBetween(dispenser.getId(), from, to)
+                ? feedingLogRepository.findActualFeedingsInPeriod(dispenser.getId(), from, to)
                 : List.of();
         List<WateringLog> wateringLogs = dispenser != null
                 ? wateringLogRepository.findAllByDispenserIdAndWateringTimeBetween(dispenser.getId(), from, to)
@@ -136,7 +136,7 @@ public class ReportServiceImpl implements ReportService {
         LocalDateTime to = report.getReportDate().atTime(LocalTime.MAX);
 
         List<FeedingLog> feedingLogs = dispenser != null
-                ? feedingLogRepository.findAllByDispenserIdAndFeedTimeBetween(dispenser.getId(), from, to)
+                ? feedingLogRepository.findActualFeedingsInPeriod(dispenser.getId(), from, to)
                 : List.of();
         List<WateringLog> wateringLogs = dispenser != null
                 ? wateringLogRepository.findAllByDispenserIdAndWateringTimeBetween(dispenser.getId(), from, to)

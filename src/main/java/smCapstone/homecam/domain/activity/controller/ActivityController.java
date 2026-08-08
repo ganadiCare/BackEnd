@@ -17,7 +17,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/activities")
-@Tag(name = "Activity API", description = "카메라 강아지 감지 활동 기록 API")
+@Tag(name = "Activity API", description = "카메라 반려동물 감지 활동 기록 API")
 public class ActivityController {
 
     private final ActivityLogService activityLogService;

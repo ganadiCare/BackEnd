@@ -26,7 +26,8 @@ public class DispenserConverter {
                 log.getId(),
                 log.getFeedTime() != null ? log.getFeedTime().format(DATETIME_FMT) : null,
                 log.getAmount(),
-                log.getLeftovers()
+                log.getLeftovers(),
+                log.getLogType() != null ? log.getLogType().name() : "FEEDING"
         );
     }
 
