@@ -84,6 +84,17 @@ public class MqttEventService {
                         .dispenser(dispenser)
                         .build());
                 notify(dispenser, "watering-completed", amount, leftovers);
+            } else if ("water-status".equals(type)) {
+                if (wateringLogRepository.existsByMqttEventId(eventId)) {
+                    return;
+                }
+                wateringLogRepository.save(WateringLog.builder()
+                        .wateringTime(now)
+                        .amount(0)
+                        .leftovers(leftovers)
+                        .mqttEventId(eventId)
+                        .dispenser(dispenser)
+                        .build());
             }
         } catch (Exception e) {
             log.error("Invalid MQTT event: {}", rawPayload, e);

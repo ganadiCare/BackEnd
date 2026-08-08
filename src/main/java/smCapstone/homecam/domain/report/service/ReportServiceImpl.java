@@ -58,7 +58,7 @@ public class ReportServiceImpl implements ReportService {
                 ? feedingLogRepository.findActualFeedingsInPeriod(dispenser.getId(), from, to)
                 : List.of();
         List<WateringLog> wateringLogs = dispenser != null
-                ? wateringLogRepository.findAllByDispenserIdAndWateringTimeBetween(dispenser.getId(), from, to)
+                ? wateringLogRepository.findActualWateringsInPeriod(dispenser.getId(), from, to)
                 : List.of();
 
         String prompt = buildPrompt(pet, feedingLogs, wateringLogs, reportDate);
@@ -104,7 +104,7 @@ public class ReportServiceImpl implements ReportService {
                 ? feedingLogRepository.findActualFeedingsInPeriod(dispenser.getId(), from, to)
                 : List.of();
         List<WateringLog> wateringLogs = dispenser != null
-                ? wateringLogRepository.findAllByDispenserIdAndWateringTimeBetween(dispenser.getId(), from, to)
+                ? wateringLogRepository.findActualWateringsInPeriod(dispenser.getId(), from, to)
                 : List.of();
 
         return toReportDTO(report, feedingLogs, wateringLogs);
@@ -139,7 +139,7 @@ public class ReportServiceImpl implements ReportService {
                 ? feedingLogRepository.findActualFeedingsInPeriod(dispenser.getId(), from, to)
                 : List.of();
         List<WateringLog> wateringLogs = dispenser != null
-                ? wateringLogRepository.findAllByDispenserIdAndWateringTimeBetween(dispenser.getId(), from, to)
+                ? wateringLogRepository.findActualWateringsInPeriod(dispenser.getId(), from, to)
                 : List.of();
 
         return toReportDTO(report, feedingLogs, wateringLogs);
