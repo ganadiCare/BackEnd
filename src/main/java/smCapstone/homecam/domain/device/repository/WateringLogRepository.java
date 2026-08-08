@@ -11,5 +11,13 @@ public interface WateringLogRepository extends JpaRepository<WateringLog, Long> 
     boolean existsByMqttEventId(String mqttEventId);
     Optional<WateringLog> findTopByDispenserIdOrderByWateringTimeDesc(Long dispenserId);
     List<WateringLog> findAllByDispenserIdAndWateringTimeBetween(Long dispenserId, LocalDateTime from, LocalDateTime to);
+
+    default List<WateringLog> findActualWateringsInPeriod(
+            Long dispenserId, LocalDateTime from, LocalDateTime to) {
+        return findAllByDispenserIdAndWateringTimeBetween(dispenserId, from, to).stream()
+                .filter(WateringLog::isActualWatering)
+                .toList();
+    }
+
     void deleteAllByDispenserId(Long dispenserId);
 }

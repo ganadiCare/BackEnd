@@ -29,4 +29,8 @@ public class WateringLog extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "dispenser_id", nullable = false)
     private Dispenser dispenser;
+
+    public boolean isActualWatering() {
+        return amount != null && amount > 0;
+    }
 }
