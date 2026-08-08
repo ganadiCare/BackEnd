@@ -10,6 +10,7 @@ import smCapstone.homecam.domain.device.entity.Dispenser;
 import smCapstone.homecam.domain.device.entity.FeedingLog;
 import smCapstone.homecam.domain.device.entity.WateringLog;
 import smCapstone.homecam.domain.device.enums.FeedingLogType;
+import smCapstone.homecam.domain.device.enums.WateringLogType;
 import smCapstone.homecam.domain.device.exception.DispenserErrorCode;
 import smCapstone.homecam.domain.device.exception.DispenserException;
 import smCapstone.homecam.domain.device.repository.DispenserRepository;
@@ -34,6 +35,7 @@ public class LogCommandServiceImpl implements LogCommandService {
                 .feedTime(request.feedTime())
                 .amount(request.amount())
                 .leftovers(request.leftovers())
+                .consumedAmount(0)
                 .logType(FeedingLogType.FEEDING)
                 .dispenser(dispenser)
                 .build();
@@ -51,6 +53,7 @@ public class LogCommandServiceImpl implements LogCommandService {
                 .wateringTime(request.wateringTime())
                 .amount(request.amount())
                 .leftovers(request.leftovers())
+                .logType(WateringLogType.WATERING)
                 .dispenser(dispenser)
                 .build();
 

@@ -2,6 +2,7 @@ package smCapstone.homecam.domain.device.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import smCapstone.homecam.domain.device.enums.WateringLogType;
 import smCapstone.homecam.global.entity.BaseEntity;
 
 import java.time.LocalDateTime;
@@ -23,6 +24,10 @@ public class WateringLog extends BaseEntity {
 
     private Integer leftovers;
 
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private WateringLogType logType;
+
     @Column(unique = true, length = 64)
     private String mqttEventId;
 
@@ -31,6 +36,18 @@ public class WateringLog extends BaseEntity {
     private Dispenser dispenser;
 
     public boolean isActualWatering() {
+        if (logType != null) {
+            return logType == WateringLogType.WATERING;
+        }
         return amount != null && amount > 0;
+    }
+
+    public WateringLogType resolvedLogType() {
+        if (logType != null) {
+            return logType;
+        }
+        return amount != null && amount > 0
+                ? WateringLogType.WATERING
+                : WateringLogType.HOURLY_STATUS;
     }
 }

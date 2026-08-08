@@ -39,6 +39,7 @@ public class DispenserResponseDTO {
             String feedTime,
             Integer amount,
             Integer leftovers,
+            Integer consumedAmount,
             String logType
     ) {}
 
@@ -46,6 +47,7 @@ public class DispenserResponseDTO {
             Long logId,
             String wateringTime,
             Integer amount,
-            Integer leftovers
+            Integer leftovers,
+            String logType
     ) {}
 }

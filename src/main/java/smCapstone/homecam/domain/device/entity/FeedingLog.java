@@ -24,6 +24,8 @@ public class FeedingLog extends BaseEntity {
 
     private Integer leftovers;
 
+    private Integer consumedAmount;
+
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private FeedingLogType logType;
@@ -37,5 +39,9 @@ public class FeedingLog extends BaseEntity {
 
     public boolean isActualFeeding() {
         return logType == null || logType == FeedingLogType.FEEDING;
+    }
+
+    public int resolvedConsumedAmount() {
+        return consumedAmount != null ? consumedAmount : 0;
     }
 }
