@@ -9,6 +9,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import smCapstone.homecam.domain.activity.repository.ActivityLogRepository;
 import smCapstone.homecam.domain.device.entity.Camera;
 import smCapstone.homecam.domain.device.entity.Dispenser;
 import smCapstone.homecam.domain.device.repository.CameraRepository;
@@ -45,6 +46,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
     private final WateringLogRepository wateringLogRepository;
     private final PetRepository petRepository;
     private final ReportRepository reportRepository;
+    private final ActivityLogRepository activityLogRepository;
 
     private final JavaMailSender mailSender;
     private final StringRedisTemplate redisTemplate;
@@ -199,6 +201,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
         cameraRepository.findByMemberId(memberId).ifPresent(cameraRepository::delete);
         petRepository.findByMemberId(memberId).ifPresent(petRepository::delete);
         reportRepository.deleteAllByMemberId(memberId);
+        activityLogRepository.deleteAllByMemberId(memberId);
 
         // Redis refresh token 무효화 및 쿠키 제거
         jwtUtil.invalidateRefreshToken(memberId);
