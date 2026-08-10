@@ -57,16 +57,42 @@ public class GptClient {
                                 """),
                         Map.of("role", "user", "content", prompt)
                 ),
-                "max_completion_tokens", 3000
+                "max_completion_tokens", 3000,
+                "reasoning_effort", "minimal"
         );
 
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
 
         try {
             ResponseEntity<Map> response = restTemplate.exchange(apiUrl, HttpMethod.POST, request, Map.class);
-            List<Map<String, Object>> choices = (List<Map<String, Object>>) response.getBody().get("choices");
-            Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
-            return (String) message.get("content");
+            Map<String, Object> responseBody = response.getBody();
+            if (responseBody == null) {
+                throw new ReportException(ReportErrorCode.GPT_API_ERROR);
+            }
+
+            List<Map<String, Object>> choices =
+                    (List<Map<String, Object>>) responseBody.get("choices");
+            if (choices == null || choices.isEmpty()) {
+                log.warn("GPT API 응답에 choices가 없습니다. model={}, usage={}",
+                        model, responseBody.get("usage"));
+                throw new ReportException(ReportErrorCode.GPT_API_ERROR);
+            }
+
+            Map<String, Object> choice = choices.get(0);
+            Map<String, Object> message = (Map<String, Object>) choice.get("message");
+            String content = message != null ? (String) message.get("content") : null;
+
+            log.info("GPT API 응답 완료: model={}, finishReason={}, usage={}",
+                    model, choice.get("finish_reason"), responseBody.get("usage"));
+
+            if (content == null || content.isBlank()) {
+                log.warn("GPT API가 빈 응답을 반환했습니다. model={}, finishReason={}, usage={}",
+                        model, choice.get("finish_reason"), responseBody.get("usage"));
+                throw new ReportException(ReportErrorCode.GPT_API_ERROR);
+            }
+            return content;
+        } catch (ReportException e) {
+            throw e;
         } catch (Exception e) {
             log.error("GPT API 호출 실패: {}", e.getMessage());
             throw new ReportException(ReportErrorCode.GPT_API_ERROR);
