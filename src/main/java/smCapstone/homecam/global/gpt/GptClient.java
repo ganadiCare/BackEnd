@@ -87,7 +87,7 @@ public class GptClient {
                                 """),
                         Map.of("role", "user", "content", prompt)
                 ),
-                "max_completion_tokens", 1000,
+                "max_completion_tokens", 3000,
                 "temperature", 0.7
         );
 
