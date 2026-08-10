@@ -57,8 +57,7 @@ public class GptClient {
                                 """),
                         Map.of("role", "user", "content", prompt)
                 ),
-                "max_completion_tokens", 3000,
-                "temperature", 0.7
+                "max_completion_tokens", 3000
         );
 
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
