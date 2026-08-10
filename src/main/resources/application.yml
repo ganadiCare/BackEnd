@@ -31,7 +31,7 @@ jwt:
       refresh: ${JWT_REFRESH_EXPIRATION}
 
 gpt:
-  model: gpt-5.4-mini
+  model: gpt-5-nano
   api:
     key: ${GPT_API_KEY}
     url: https://api.openai.com/v1/chat/completions
