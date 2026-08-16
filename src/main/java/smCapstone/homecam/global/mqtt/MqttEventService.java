@@ -41,7 +41,7 @@ public class MqttEventService {
             JsonNode event = objectMapper.readTree(rawPayload);
             String eventId = requiredText(event, "eventId");
             String type = requiredText(event, "type");
-            Dispenser dispenser = dispenserRepository.findFirstByOrderByIdAsc()
+            Dispenser dispenser = dispenserRepository.findById(7L)
                     .orElseThrow(() -> new IllegalStateException("No dispenser is registered"));
 
             int amount = nonNegative(event.path("amount").asInt());

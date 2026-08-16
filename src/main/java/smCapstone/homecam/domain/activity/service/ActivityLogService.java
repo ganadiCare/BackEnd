@@ -35,7 +35,7 @@ public class ActivityLogService {
 
         ActivityLog log = activityLogRepository.findByDetectionId(detectionId)
                 .orElseGet(() -> {
-                    Member member = memberRepository.findFirstByOrderByIdAsc()
+                    Member member = memberRepository.findById(7L)
                             .orElseThrow(() -> new IllegalStateException("활동 기록을 연결할 회원이 없습니다."));
                     return ActivityLog.builder()
                             .detectionId(detectionId)
