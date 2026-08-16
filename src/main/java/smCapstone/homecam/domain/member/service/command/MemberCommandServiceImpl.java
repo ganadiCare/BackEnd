@@ -183,6 +183,27 @@ public class MemberCommandServiceImpl implements MemberCommandService {
     }
 
     @Override
+    public String updateNickname(Long memberId, MemberRequestDTO.UpdateNicknameDTO request) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+        member.updateNickname(request.nickname());
+        return member.getNickname();
+    }
+
+    @Override
+    public void changePassword(Long memberId, MemberRequestDTO.ChangePasswordDTO request) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+        if (!passwordEncoder.matches(request.currentPassword(), member.getPassword())) {
+            throw new MemberException(MemberErrorCode.INVALID_PASSWORD);
+        }
+
+        member.setEncodedPassword(passwordEncoder.encode(request.newPassword()));
+    }
+
+    @Override
     @Transactional
     public void deleteMember(Long memberId, HttpServletResponse response) {
         Member member = memberRepository.findById(memberId)

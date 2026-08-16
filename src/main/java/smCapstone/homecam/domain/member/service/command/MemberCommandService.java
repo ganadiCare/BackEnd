@@ -24,6 +24,10 @@ public interface MemberCommandService {
     @Transactional(readOnly = true)
     MemberResponseDTO.RefreshResultDTO reissueToken(String refreshToken);
 
+    String updateNickname(Long memberId, MemberRequestDTO.UpdateNicknameDTO request);
+
+    void changePassword(Long memberId, MemberRequestDTO.ChangePasswordDTO request);
+
     // 계정 삭제
     void deleteMember(Long memberId, HttpServletResponse response);
 }

@@ -30,6 +30,10 @@ public class Member extends BaseEntity {
         this.password = encodedPassword;
     }
 
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
     /*
     연관 관계 아직 엔티티 안 만들어서 이대로 둠
 

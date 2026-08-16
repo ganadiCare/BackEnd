@@ -80,6 +80,23 @@ public class MemberController {
         return ApiResponse.onSuccess(GeneralSuccessCode.OK, result);
     }
 
+    @PatchMapping("/me/nickname")
+    @Operation(summary = "닉네임 변경 API")
+    public ApiResponse<String> updateNickname(
+            @RequestBody @Valid MemberRequestDTO.UpdateNicknameDTO request) {
+        String nickname = memberCommandService.updateNickname(
+                SecurityUtil.getCurrentMemberId(), request);
+        return ApiResponse.onSuccess(GeneralSuccessCode.OK, nickname);
+    }
+
+    @PatchMapping("/me/password")
+    @Operation(summary = "비밀번호 변경 API")
+    public ApiResponse<Void> changePassword(
+            @RequestBody @Valid MemberRequestDTO.ChangePasswordDTO request) {
+        memberCommandService.changePassword(SecurityUtil.getCurrentMemberId(), request);
+        return ApiResponse.onSuccess(GeneralSuccessCode.OK, null);
+    }
+
     @DeleteMapping("/me")
     @Operation(summary = "계정 삭제 API", description = "현재 로그인된 계정과 모든 연관 데이터를 삭제합니다.")
     public ApiResponse<Void> deleteMember(HttpServletResponse response) {

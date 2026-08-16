@@ -66,4 +66,18 @@ public class MemberRequestDTO {
             @NotBlank(message = "비밀번호를 입력해주세요.")
             String password
     ) {}
+
+    public record UpdateNicknameDTO(
+            @NotBlank(message = "닉네임을 입력해주세요.")
+            @Size(max = 50, message = "닉네임은 50자 이하여야 합니다.")
+            String nickname
+    ) {}
+
+    public record ChangePasswordDTO(
+            @NotBlank(message = "현재 비밀번호를 입력해주세요.")
+            String currentPassword,
+            @NotBlank(message = "새 비밀번호를 입력해주세요.")
+            @Size(min = 8, message = "새 비밀번호는 8자 이상이어야 합니다.")
+            String newPassword
+    ) {}
 }
