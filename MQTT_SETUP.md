@@ -18,7 +18,7 @@
 Azure 서버의 HomeCam `.env`에 다음 값을 추가한다.
 
 ```dotenv
-MQTT_BROKER_URL=tcp://20.189.241.58:1883
+MQTT_BROKER_URL=tcp://YOUR_MQTT_HOST:1883
 MQTT_USERNAME=homecam-server
 MQTT_PASSWORD=CHANGE_ME
 MQTT_CLIENT_ID=homecam-server
